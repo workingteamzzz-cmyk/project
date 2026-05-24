@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pukpuk Cable — Strategic Communication Report · TelkomGroup</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ee2d24; --navy: #003057; --teal: #0f6e56;
+    --gold: #B8860B; --teal-light: #e1f5ee; --gold-light: #fdf6e3;
+    --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+    --gray-400: #94a3b8; --gray-500: #64748b; --gray-700: #334155;
+    --gray-900: #0f172a; --white: #ffffff;
+    font-family: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--gray-50); color: var(--gray-900); font-size: 14px; line-height: 1.6; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  /* COVER */
+  .cover {
+    background: linear-gradient(135deg, var(--red) 0%, var(--navy) 100%);
+    color: #fff; border-radius: 24px; padding: 56px 56px 48px;
+    position: relative; overflow: hidden; margin-bottom: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  }
+  .cover::before { content:''; position:absolute; bottom:-60px; right:-60px; width:340px; height:340px; background:rgba(255,255,255,0.05); border-radius:50%; }
+  .cover::after  { content:''; position:absolute; top:-80px; right:120px; width:200px; height:200px; background:rgba(255,255,255,0.03); border-radius:50%; }
+  .cover-badges { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; position:relative; z-index:1; }
+  .badge { background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.95); font-size:11px; font-weight:700; padding:5px 14px; border-radius:20px; letter-spacing:.6px; text-transform:uppercase; }
+  .badge.red { background:rgba(238,45,36,.75); border-color:transparent; }
+  .cover-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:10px; position:relative; z-index:1; }
+  .cover-title { font-size:46px; font-weight:800; line-height:1.1; margin-bottom:6px; position:relative; z-index:1; }
+  .cover-title span { color:rgba(255,255,255,.7); }
+  .cover-subtitle { font-size:16px; color:rgba(255,255,255,.8); margin-bottom:48px; font-weight:400; position:relative; z-index:1; max-width:600px; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; position:relative; z-index:1; }
+  .kpi-card { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:16px; padding:20px 22px; }
+  .kpi-label { font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,.6); margin-bottom:8px; font-weight:700; }
+  .kpi-value { font-size:32px; font-weight:800; line-height:1; }
+  .kpi-sub { font-size:12px; color:rgba(255,255,255,.6); margin-top:4px; }
+
+  /* SECTIONS */
+  .section { background:var(--white); border-radius:24px; padding:40px 48px; margin-bottom:24px; border:1px solid var(--gray-200); }
+  .section.muted { background:var(--gray-50); }
+  .section.dark { background:var(--gray-900); color:#fff; border-color:transparent; }
+  .section-tag { display:inline-flex; align-items:center; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--red); border-left:3px solid var(--red); padding-left:12px; margin-bottom:8px; }
+  .section-title { font-size:24px; font-weight:700; color:var(--gray-900); }
+  .section.dark .section-title { color:#fff; }
+  .section-sub { font-size:13px; color:var(--gray-500); margin-top:4px; }
+  .section.dark .section-sub { color:rgba(255,255,255,.5); }
+  .section-hdr { margin-bottom:32px; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+
+  /* EXEC SUMMARY */
+  .summary-text { font-size:14px; line-height:1.75; color:var(--gray-700); }
+  .summary-text p { margin-bottom:14px; }
+  .pillars-card { background:var(--gray-900); color:#fff; border-radius:20px; padding:28px 32px; }
+  .pillar { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
+  .pillar:last-child { margin-bottom:0; }
+  .pillar-num { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0; }
+  .p-red { background:var(--red); } .p-teal { background:var(--teal); } .p-blue { background:#3b82f6; }
+  .pillar-title { font-weight:700; font-size:14px; margin-bottom:2px; }
+  .pillar-text { font-size:12px; color:rgba(255,255,255,.5); line-height:1.5; }
+  .quote-block { background:var(--gray-50); border-left:4px solid var(--navy); border-radius:0 12px 12px 0; padding:18px 24px; margin:20px 0; font-style:italic; font-size:14px; line-height:1.7; color:var(--gray-700); }
+  .quote-attr { font-style:normal; font-weight:700; font-size:12px; color:var(--navy); margin-top:8px; display:block; }
+
+  /* ROUTE */
+  .route-strip { background:var(--gray-900); border-radius:20px; padding:32px; margin-bottom:24px; position:relative; overflow:hidden; }
+  .route-strip::after { content:''; position:absolute; bottom:-40px; right:-40px; width:180px; height:180px; border:2px solid rgba(255,255,255,.05); border-radius:50%; }
+  .route-lbl { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:20px; }
+  .route-nodes { display:grid; grid-template-columns:1fr 28px 1fr 28px 1fr 28px 1fr 28px 1fr; align-items:center; gap:4px; margin-bottom:24px; }
+  .route-node { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:14px 10px; text-align:center; }
+  .route-node.active { background:var(--red); border-color:var(--red); }
+  .route-city { font-weight:700; font-size:13px; color:#fff; }
+  .route-sub { font-size:11px; color:rgba(255,255,255,.5); margin-top:2px; }
+  .route-tiny { font-size:10px; color:rgba(255,255,255,.3); margin-top:2px; }
+  .route-node.active .route-sub { color:rgba(255,255,255,.8); }
+  .route-arr { text-align:center; color:var(--red); font-size:18px; font-weight:700; }
+  .route-arr.w { color:#fff; }
+  .route-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding-top:20px; border-top:1px solid rgba(255,255,255,.1); }
+  .rs-val { font-size:22px; font-weight:800; color:var(--red); }
+  .rs-val.w { color:#fff; font-size:17px; margin-top:3px; }
+  .rs-lbl { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-top:2px; }
+
+  /* CHARTS */
+  .chart-title { font-size:12px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--gray-500); margin-bottom:16px; }
+  .chart-wrap { position:relative; }
+  .chart-cap { font-size:11px; color:var(--gray-400); text-align:center; margin-top:10px; font-style:italic; }
+  .legend-row { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; }
+  .leg { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--gray-500); }
+  .leg-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  /* TABLE */
+  .data-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:16px; }
+  .data-table thead tr { background:var(--gray-900); }
+  .data-table th { padding:10px 16px; text-align:left; color:rgba(255,255,255,.85); font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+  .data-table th:first-child { border-radius:8px 0 0 0; } .data-table th:last-child { border-radius:0 8px 0 0; }
+  .data-table td { padding:9px 16px; border-bottom:1px solid var(--gray-100); color:var(--gray-700); vertical-align:top; }
+  .data-table tr:nth-child(even) td { background:var(--gray-50); }
+  .tier-pill { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; background:var(--red); color:#fff; letter-spacing:.5px; }
+  .tier-pill.t3 { background:var(--gray-400); }
+  .tone-pos { color:var(--teal); font-weight:700; }
+
+  /* FINDINGS */
+  .finding { border-radius:16px; border:1px solid var(--gray-200); border-top:4px solid var(--navy); padding:20px 24px; margin-bottom:14px; }
+  .finding.red { border-top-color:var(--red); }
+  .finding.teal { border-top-color:var(--teal); }
+  .finding.gold { border-top-color:var(--gold); }
+  .finding-title { font-weight:700; font-size:14px; color:var(--gray-900); margin-bottom:8px; }
+  .finding-text { font-size:13px; color:var(--gray-700); line-height:1.65; }
+
+  /* INFLUENCER */
+  .inf-row { display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--gray-100); }
+  .inf-row:last-child { border-bottom:none; }
+  .avatar { width:40px; height:40px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+  .av-red{background:var(--red);} .av-teal{background:var(--teal);} .av-gold{background:var(--gold);} .av-gray{background:var(--gray-400);}
+  .inf-name { font-weight:700; font-size:14px; color:var(--gray-900); }
+  .inf-role { font-size:12px; color:var(--gray-500); }
+  .bar-bg { flex:1; background:var(--gray-200); height:6px; border-radius:3px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; }
+  .inf-count { font-weight:800; font-size:16px; min-width:30px; text-align:right; }
+  .inf-box { border-radius:14px; padding:18px 20px; margin-bottom:12px; }
+  .inf-box.dark { background:var(--gray-900); color:#fff; }
+  .inf-box.tl { background:var(--teal-light); border-left:3px solid var(--teal); }
+  .inf-box.gl { background:var(--gold-light); border-left:3px solid var(--gold); }
+  .inf-box-lbl { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+  .inf-box-txt { font-size:12px; line-height:1.6; }
+
+  /* KEY MESSAGES */
+  .msg-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .msg-card { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:20px; }
+  .msg-card.gap { border-color:#fca5a5; background:#fff5f5; }
+  .msg-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .msg-cat { display:inline-block; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:4px; }
+  .stars span.on { color:#f59e0b; } .stars span.off { color:var(--gray-200); }
+  .msg-title { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .msg-text { font-size:12px; color:var(--gray-500); line-height:1.6; }
+
+  /* SCORECARD */
+  .scorecard { background:var(--gray-900); color:#fff; border-radius:24px; padding:40px 48px; margin-bottom:24px; }
+  .sc-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:36px; }
+  .sc-overall { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:16px; padding:20px 28px; text-align:center; }
+  .sc-lbl { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:6px; }
+  .sc-val { font-size:48px; font-weight:800; color:var(--red); line-height:1; }
+  .sc-val span { font-size:20px; font-weight:400; color:rgba(255,255,255,.4); }
+  .sc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+  .sc-item { margin-bottom:20px; }
+  .sc-item-lbl { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:4px; }
+  .sc-stars { font-size:14px; margin-bottom:2px; }
+  .sc-note { font-size:11px; color:rgba(255,255,255,.45); }
+  .sc-stars .on{color:var(--red);} .sc-stars .off{color:rgba(255,255,255,.15);}
+
+  /* RECOMMENDATIONS */
+  .rec-card { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:24px 28px; margin-bottom:14px; display:flex; gap:24px; align-items:center; }
+  .rec-hor { min-width:140px; text-align:center; }
+  .rec-period { display:inline-block; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:4px 14px; border-radius:20px; color:#fff; margin-bottom:6px; }
+  .rec-h { font-weight:700; font-size:14px; }
+  .rec-title { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .rec-text { font-size:13px; color:var(--gray-500); line-height:1.6; }
+
+  /* ADVISORY */
+  .advisory { background:var(--red); color:#fff; border-radius:24px; padding:40px 48px; margin-bottom:24px; display:flex; gap:32px; align-items:flex-start; }
+  .adv-icon { font-size:60px; opacity:.3; flex-shrink:0; line-height:1; }
+  .adv-title { font-size:22px; font-weight:700; margin-bottom:12px; }
+  .adv-text { font-size:16px; font-style:italic; line-height:1.7; }
+  .adv-attr { margin-top:20px; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,.6); }
+
+  /* OVERARCHING */
+  .overarching { background:var(--navy); color:#fff; border-radius:20px; padding:28px 32px; margin-bottom:24px; }
+  .ov-lbl { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:14px; }
+  .ov-text { font-size:18px; line-height:1.6; font-style:italic; }
+
+  /* FOOTER */
+  footer { background:var(--gray-900); color:rgba(255,255,255,.5); border-radius:20px; padding:24px 40px; display:flex; justify-content:space-between; align-items:center; font-size:12px; }
+  footer strong { color:rgba(255,255,255,.85); }
+
+  @media(max-width:768px){
+    .kpi-grid,.two-col,.msg-grid,.sc-grid,.route-nodes,.route-stats{grid-template-columns:1fr;}
+    .route-nodes{display:flex;flex-direction:column;} .route-arr{transform:rotate(90deg);}
+    .cover-title{font-size:32px;} .rec-card{flex-direction:column;} .advisory{flex-direction:column;} .sc-hdr{flex-direction:column;gap:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-badges">
+    <span class="badge red">KONFIDENSIAL</span>
+    <span class="badge">TelkomGroup / Telin</span>
+    <span class="badge">8–22 Mei 2026</span>
+    <span class="badge">101 Artikel Termonitor</span>
+  </div>
+  <div class="cover-label">Laporan Strategi Komunikasi · Analisis Media & Sentimen</div>
+  <div class="cover-title">Kabel Laut Pukpuk<br><span>Communication Strategy Report</span></div>
+  <div class="cover-subtitle">Jembatan Digital Pertama Indonesia–Papua Nugini · Peresmian 8 Mei 2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Total Publikasi</div><div class="kpi-value">101</div><div class="kpi-sub">8 Mei – 22 Mei 2026</div></div>
+    <div class="kpi-card"><div class="kpi-label">Sentimen Positif</div><div class="kpi-value">100%</div><div class="kpi-sub">Judul & Konten · Semua 101 Artikel</div></div>
+    <div class="kpi-card"><div class="kpi-label">Media Tier 1</div><div class="kpi-value">20</div><div class="kpi-sub">Antara, Detik, CNBC, Tempo, dll.</div></div>
+    <div class="kpi-card"><div class="kpi-label">Puncak Liputan</div><div class="kpi-value">41</div><div class="kpi-sub">Artikel pada 9 Mei 2026 (H+1)</div></div>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="section">
+  <div class="section-hdr">
+    <div class="section-tag">00 · Executive Summary</div>
+    <div class="section-title">Gambaran Umum Strategi & Kinerja Komunikasi</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="summary-text">
+        <p>Peresmian Sistem Kabel Laut Pukpuk (Puk-Puk 1) pada 8 Mei 2026 di Jayapura menghasilkan respons media yang luar biasa positif. Dalam 15 hari pemantauan tercatat <strong>101 artikel</strong> dari berbagai outlet nasional dan regional dengan <strong>sentimen positif 100% — baik pada level judul maupun konten</strong> — sebuah pencapaian komunikasi korporat yang sangat jarang terjadi untuk peluncuran infrastruktur skala besar.</p>
+        <p>Keberhasilan ini didorong tiga pilar: narrative framing kuat sebagai "jembatan digital pertama", institutional endorsement berlapis, dan timing yang tepat bersamaan momentum Hari Kebebasan Pers Sedunia di Jayapura.</p>
+      </div>
+      <div class="quote-block">
+        "Pukpuk Cable yang dibangun oleh TelkomGroup menjadi bagian penting dalam menciptakan pemerataan konektivitas yang lebih andal, resilien, dan mampu memberikan manfaat bagi masyarakat di Indonesia Timur, Papua Nugini, maupun seluruh penjuru negeri."
+        <span class="quote-attr">— Angga Raka Prabowo, Wakil Menteri Komunikasi dan Digital RI · Dikutip di 87 dari 101 artikel</span>
+      </div>
+    </div>
+    <div class="pillars-card">
+      <div style="font-size:16px;font-weight:700;margin-bottom:20px;">3 Pilar Strategi Komunikasi</div>
+      <div class="pillar"><div class="pillar-num p-red">1</div><div><div class="pillar-title">Narrative Framing</div><div class="pillar-text">Pukpuk sebagai "Jembatan Digital" integrasi kawasan Asia-Pasifik, bukan sekadar proyek teknis.</div></div></div>
+      <div class="pillar"><div class="pillar-num p-teal">2</div><div><div class="pillar-title">Institutional Endorsement</div><div class="pillar-text">Dukungan berlapis dari Wamen Komdigi, Gubernur Papua, hingga CEO PNG DataCo.</div></div></div>
+      <div class="pillar"><div class="pillar-num p-blue">3</div><div><div class="pillar-title">Strategic Timing</div><div class="pillar-text">Momentum tepat bersamaan Hari Kebebasan Pers Sedunia di Jayapura.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CABLE ROUTE -->
+<div class="route-strip">
+  <div class="route-lbl">Rute Konektivitas · Sistem Kabel Laut Pukpuk-1 (850 km)</div>
+  <div class="route-nodes">
+    <div class="route-node"><div class="route-city">🇺🇸 Los Angeles</div><div class="route-sub">Amerika Serikat</div><div class="route-tiny">via SEA-US Cable</div></div>
+    <div class="route-arr">←</div>
+    <div class="route-node"><div class="route-city">🇮🇩 Manado</div><div class="route-sub">Sulawesi Utara</div><div class="route-tiny">Hub SEA-US</div></div>
+    <div class="route-arr">←</div>
+    <div class="route-node active"><div class="route-city">🇮🇩 Jayapura</div><div class="route-sub">Papua · Landing Station</div><div class="route-tiny" style="color:rgba(255,255,255,.7)">Dioperasikan Telin</div></div>
+    <div class="route-arr w">→</div>
+    <div class="route-node"><div class="route-city">🇵🇬 Vanimo</div><div class="route-sub">Papua Nugini</div><div class="route-tiny">Border · 80 km</div></div>
+    <div class="route-arr w">→</div>
+    <div class="route-node"><div class="route-city">🇵🇬 Madang</div><div class="route-sub">Papua Nugini</div><div class="route-tiny">770 km dari border</div></div>
+  </div>
+  <div class="route-stats">
+    <div><div class="rs-val">850 km</div><div class="rs-lbl">Total Panjang Kabel</div></div>
+    <div><div class="rs-val w">2 Jalur</div><div class="rs-lbl">Konektivitas Internasional Jayapura</div></div>
+    <div><div class="rs-val w">1st</div><div class="rs-lbl">Cross-border Cable Asia-Pasifik</div></div>
+    <div><div class="rs-val w">PNG DataCo</div><div class="rs-lbl">Mitra Strategis Telin</div></div>
+  </div>
+</div>
+
+<!-- MEDIA COVERAGE -->
+<div class="section">
+  <div class="section-hdr">
+    <div class="section-tag">01 · Analisis Liputan Media</div>
+    <div class="section-title">Volume, Tier & Distribusi Waktu Publikasi</div>
+  </div>
+  <div class="two-col" style="margin-bottom:28px;">
+    <div>
+      <div class="chart-title">Volume Publikasi Harian (8–22 Mei 2026)</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="dailyChart"></canvas></div>
+      <div class="chart-cap">Puncak terjadi H+1 peresmian (9 Mei · 41 artikel), lalu melandai secara organik.</div>
+    </div>
+    <div>
+      <div class="chart-title">Distribusi Tier Media</div>
+      <div class="chart-wrap" style="height:220px;"><canvas id="tierChart"></canvas></div>
+      <div class="legend-row" style="margin-top:12px;">
+        <span class="leg"><span class="leg-dot" style="background:var(--red);"></span>Tier 1 Nasional (20 artikel)</span>
+        <span class="leg"><span class="leg-dot" style="background:var(--navy);"></span>Tier 3 Regional (81 artikel)</span>
+      </div>
+    </div>
+  </div>
+  <div class="chart-title">Media Tier 1 Teridentifikasi (20 Artikel)</div>
+  <table class="data-table">
+    <thead><tr><th>Outlet Media</th><th>Tier</th><th>Artikel</th><th>Nada Judul</th><th>Nada Konten</th><th>Angle Utama</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Detik.com</strong></td><td><span class="tier-pill">T1</span></td><td>3</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Papua pintu internet global; Jayapura 2 jalur internasional</td></tr>
+      <tr><td><strong>Antara</strong></td><td><span class="tier-pill">T1</span></td><td>2</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Peresmian resmi; kabel laut Jayapura-PNG buka konektivitas global</td></tr>
+      <tr><td><strong>CNBC Indonesia</strong></td><td><span class="tier-pill">T1</span></td><td>2</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Proyek raksasa Telkom; TLKM hubungkan RI-PNG</td></tr>
+      <tr><td><strong>TvOneNews</strong></td><td><span class="tier-pill">T1</span></td><td>2</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Jembatan digital pertama RI-PNG; Community Gateway Wamena 40 Gbps</td></tr>
+      <tr><td><strong>JPNN.com</strong></td><td><span class="tier-pill">T1</span></td><td>2</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Jembatan digital RI-PNG; TSR Telkom 35,7%</td></tr>
+      <tr><td><strong>Kumparan</strong></td><td><span class="tier-pill">T1</span></td><td>2</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Perkuat konektivitas; kabel laut Indonesia-PNG Asia-Pasifik</td></tr>
+      <tr><td><strong>Industri.Kontan.co.id</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>PUK-PUK 1 + Community Gateway Wamena; rincian 850 km</td></tr>
+      <tr><td><strong>Kontan</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>TelkomGroup resmikan Pukpuk hubungkan Indonesia-Papua Nugini</td></tr>
+      <tr><td><strong>IDN Times</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Perkuat konektivitas digital Papua</td></tr>
+      <tr><td><strong>Investor Daily</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Jembatan digital pertama Indonesia-PNG</td></tr>
+      <tr><td><strong>Katadata</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Kabel laut Pukpuk — jembatan digital pertama penghubung RI-PNG</td></tr>
+      <tr><td><strong>Tempo.co</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>TelkomGroup resmikan kabel laut Pukpuk di Papua</td></tr>
+      <tr><td><strong>Berita Satu</strong></td><td><span class="tier-pill">T1</span></td><td>1</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Jembatan digital pertama Indonesia-PNG</td></tr>
+      <tr><td><em>Media Tier 3 (regional)</em></td><td><span class="tier-pill t3">T3</span></td><td>81</td><td class="tone-pos">Positif</td><td class="tone-pos">Positif</td><td>Replikasi siaran pers; angle lokal Papua, Sulawesi, Kalimantan, dll.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SENTIMENT & NARRATIVES -->
+<div class="section muted">
+  <div class="section-hdr">
+    <div class="section-tag">02 · Analisis Sentimen & Narasi</div>
+    <div class="section-title">Tone Mapping · Key Messages · Framing Analysis</div>
+  </div>
+  <div class="two-col" style="margin-bottom:28px;">
+    <div>
+      <div class="chart-title">Distribusi Sentimen — Judul & Konten</div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="sentimentChart"></canvas></div>
+      <div class="legend-row" style="margin-top:12px;">
+        <span class="leg"><span class="leg-dot" style="background:var(--teal);"></span>Positif · 100% — 101 artikel</span>
+      </div>
+      <p style="font-size:12px;color:var(--gray-400);margin-top:8px;line-height:1.6;">Seluruh 101 artikel memiliki nada judul positif dan nada konten positif. Tidak ada artikel dengan sentimen negatif maupun netral dalam dataset ini.</p>
+    </div>
+    <div>
+      <div class="chart-title">Distribusi Narasi Utama (estimasi dari konten)</div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="narrativeChart"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-title" style="margin-bottom:16px;">Lima Narasi Dominan yang Terbentuk</div>
+  <div class="finding red">
+    <div class="finding-title">① "Jembatan Digital Pertama" — Milestone Infrastruktur Asia-Pasifik</div>
+    <div class="finding-text">Framing paling konsisten di seluruh 101 artikel. Hampir semua judul menggunakan kata kunci <em>"pertama," "jembatan digital,"</em> atau <em>"cross-border pertama di Asia-Pasifik."</em> Narasi inti ini dikunci TelkomGroup sejak press release awal — membuktikan keberhasilan message discipline yang ketat di level juru bicara.</div>
+  </div>
+  <div class="finding">
+    <div class="finding-title">② Diplomasi Digital Bilateral Indonesia–Papua Nugini</div>
+    <div class="finding-text">Sekitar 22% liputan menonjolkan dimensi diplomatik — kehadiran Wakil Konsulat PNG Leon Galemo, CEO PNG DataCo Paul Komboi, dan pernyataan bilateral. Narasi dari proyek teknis berhasil diangkat menjadi <em>state-level digital partnership</em>, menambah bobot strategis dan nilai berita internasional.</div>
+  </div>
+  <div class="finding teal">
+    <div class="finding-title">③ Pemerataan Digital & Inklusi Kawasan Timur Indonesia</div>
+    <div class="finding-text">Narasi "tidak ada wilayah yang tertinggal" dan posisi Jayapura sebagai "hub baru" berhasil mengaitkan proyek korporat dengan agenda nasional. Kutipan Dirut Dian Siswarini ("Indonesia Timur adalah bagian integral dari ekosistem konektivitas global") menjadi soundbite paling sering direplikasi di 85 artikel.</div>
+  </div>
+  <div class="finding gold">
+    <div class="finding-title">④ Jayapura sebagai Gateway Baru Asia-Pasifik</div>
+    <div class="finding-text">Framing geografis Jayapura sebagai "gerbang Asia-Pasifik" mendapat resonansi kuat di media regional Papua. Konsep "dua jalur konektivitas internasional mandiri" memberikan angle teknis yang konkret dan mudah divisualisasikan. Menggeser citra bahwa hub internasional hanya ada di Batam/Jakarta.</div>
+  </div>
+  <div class="finding">
+    <div class="finding-title">⑤ Endorsement Multi-Level Pemerintah</div>
+    <div class="finding-text">Pernyataan Wamen Komdigi Angga Raka Prabowo muncul sebagai influencer utama (87 artikel), mengaitkan proyek ke program prioritas nasional presiden. Ini mengunci framing bahwa Pukpuk adalah proyek negara — bukan sekadar inisiatif BUMN — yang signifikan meningkatkan kredibilitas dan daya sebar berita.</div>
+  </div>
+</div>
+
+<!-- INFLUENCER MAPPING -->
+<div class="section">
+  <div class="section-hdr">
+    <div class="section-tag">03 · Pemetaan Influencer & Juru Bicara</div>
+    <div class="section-title">Frekuensi Kutipan · Peran Strategis · Efektivitas Pesan</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="chart-title">Frekuensi Kutipan per Figur (dari 101 artikel)</div>
+      <div class="inf-row">
+        <div class="avatar av-red">AR</div>
+        <div style="flex:1"><div class="inf-name">Angga Raka Prabowo</div><div class="inf-role">Wamen Komunikasi & Digital RI</div><div style="margin-top:8px"><div class="bar-bg"><div class="bar-fill" style="width:100%;background:var(--red);"></div></div></div></div>
+        <div class="inf-count" style="color:var(--red);">87</div>
+      </div>
+      <div class="inf-row">
+        <div class="avatar av-teal">DS</div>
+        <div style="flex:1"><div class="inf-name">Dian Siswarini</div><div class="inf-role">Direktur Utama Telkom Indonesia</div><div style="margin-top:8px"><div class="bar-bg"><div class="bar-fill" style="width:97.7%;background:var(--teal);"></div></div></div></div>
+        <div class="inf-count" style="color:var(--teal);">85</div>
+      </div>
+      <div class="inf-row">
+        <div class="avatar av-gray">CS</div>
+        <div style="flex:1"><div class="inf-name">Christian Sohilait</div><div class="inf-role">Pj. Sekda Papua (mewakili Gubernur)</div><div style="margin-top:8px"><div class="bar-bg"><div class="bar-fill" style="width:4.6%;background:var(--gray-400);"></div></div></div></div>
+        <div class="inf-count" style="color:var(--gray-400);">4</div>
+      </div>
+      <div class="inf-row">
+        <div class="avatar av-gold">VW</div>
+        <div style="flex:1"><div class="inf-name">Velix Wanggai</div><div class="inf-role">Tokoh Papua / Konteks Wamena</div><div style="margin-top:8px"><div class="bar-bg"><div class="bar-fill" style="width:3.4%;background:var(--gold);"></div></div></div></div>
+        <div class="inf-count" style="color:var(--gold);">3</div>
+      </div>
+      <div class="inf-row">
+        <div class="avatar">PS</div>
+        <div style="flex:1"><div class="inf-name">Prabowo Subianto</div><div class="inf-role">Presiden RI (dikutip dalam konteks kebijakan)</div><div style="margin-top:8px"><div class="bar-bg"><div class="bar-fill" style="width:2.3%;background:var(--navy);"></div></div></div></div>
+        <div class="inf-count" style="color:var(--navy);">2</div>
+      </div>
+    </div>
+    <div>
+      <div class="chart-title">Analisis Efektivitas Pesan</div>
+      <div class="inf-box dark">
+        <div class="inf-box-lbl" style="color:rgba(255,255,255,.4);">Wamen Komdigi — Strategic Value</div>
+        <div class="inf-box-txt" style="color:rgba(255,255,255,.8);">Kutipan Wamen mengaitkan proyek ke <em>agenda prioritas nasional presiden</em> — otomatis menjadikan liputan sebagai berita pemerintah, bukan sekadar berita korporat. Amplifikasi ini tidak bisa dibeli: muncul di 87 dari 101 artikel (86%).</div>
+      </div>
+      <div class="inf-box tl">
+        <div class="inf-box-lbl" style="color:var(--teal);">Dian Siswarini — Soundbite Champion</div>
+        <div class="inf-box-txt" style="color:var(--gray-700);">Kutipan kunci "Indonesia Timur adalah bagian integral dari ekosistem konektivitas global" direplikasi di hampir semua 85 artikel — bukti <em>message discipline</em> CEO yang sangat efektif dan konsisten.</div>
+      </div>
+      <div class="inf-box gl">
+        <div class="inf-box-lbl" style="color:var(--gold);">Figur yang Absen — Gap Strategis</div>
+        <div class="inf-box-txt" style="color:var(--gray-700);">CEO PNG DataCo Paul Komboi dan CEO Telin Kharisma hadir di lokasi namun sangat jarang dikutip media. Ini adalah opportunity loss besar untuk memperkuat <em>bilateral narrative</em> secara internasional.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GEOGRAPHIC ANALYSIS -->
+<div class="section muted">
+  <div class="section-hdr">
+    <div class="section-tag">04 · Pemetaan Geografis Liputan</div>
+    <div class="section-title">Sebaran Lokasi Publikasi & Resonansi Regional</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="chart-title">Top-10 Lokasi Paling Sering Disebut (dari data riil)</div>
+      <div class="chart-wrap" style="height:290px;"><canvas id="locationChart"></canvas></div>
+      <div class="chart-cap">Liputan berhasil memetakan konektivitas dari Papua hingga Amerika Serikat.</div>
+    </div>
+    <div>
+      <div class="chart-title">Analisis Jangkauan Geografis</div>
+      <div class="finding" style="margin-bottom:12px;">
+        <div class="finding-title">🇮🇩 Domestik · Papua & Kawasan Timur</div>
+        <div class="finding-text">Indonesia (99×), Provinsi Papua (98×), Jayapura (96×), dan Indonesia Timur (89×) mendominasi. Media lokal Papua (PasificPos, FokusPapua, Cenderawasih Pos) memberikan validasi <em>ground-level</em> yang genuine dan tidak bisa direkayasa.</div>
+      </div>
+      <div class="finding teal" style="margin-bottom:12px;">
+        <div class="finding-title">🌏 Asia-Pasifik · PNG & Kawasan</div>
+        <div class="finding-text">Papua New Guinea disebut 94 kali, Asia 91 kali. Framing "Asia-Pasifik gateway" berhasil masuk ke dalam tubuh berita. IndonesiaBusinessPost menjadi satu-satunya outlet berbahasa Inggris — gap besar untuk amplifikasi internasional.</div>
+      </div>
+      <div class="finding gold">
+        <div class="finding-title">🇺🇸 Koneksi Amerika Serikat</div>
+        <div class="finding-text">Los Angeles disebut 71 kali, United States 70 kali. Narasi "Papua tersambung ke Amerika lewat SEA-US" menjadi hook berita yang sangat efektif dan dramatis. Memberikan <em>sense of scale global</em> yang kuat bagi pembaca awam.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KEY MESSAGES -->
+<div class="section">
+  <div class="section-hdr">
+    <div class="section-tag">05 · Arsitektur Pesan Kunci</div>
+    <div class="section-title">Message House · Efektivitas & Gap Komunikasi</div>
+  </div>
+  <div class="overarching">
+    <div class="ov-lbl">Overarching Message — Teridentifikasi dari 101 Artikel</div>
+    <div class="ov-text">"Pukpuk Cable adalah bukti nyata bahwa TelkomGroup mampu menjembatani kesenjangan digital antar negara dan memastikan Indonesia Timur menjadi bagian integral dari ekosistem konektivitas global."</div>
+  </div>
+  <div class="msg-grid">
+    <div class="msg-card">
+      <div class="msg-top">
+        <span class="msg-cat" style="background:#fee2e2;color:#991b1b;">Historis</span>
+        <div class="stars"><span class="on">★★★★★</span></div>
+      </div>
+      <div class="msg-title">Milestone · "Pertama di Asia-Pasifik"</div>
+      <div class="msg-text">100% konsisten di seluruh liputan. Framing "cross-border pertama" memberikan eksklusivitas dan sejarah yang membuat semua outlet merasa wajib meliput.</div>
+    </div>
+    <div class="msg-card">
+      <div class="msg-top">
+        <span class="msg-cat" style="background:#dbeafe;color:#1e40af;">Nasional</span>
+        <div class="stars"><span class="on">★★★★★</span></div>
+      </div>
+      <div class="msg-title">Pemerataan Digital · Inklusivitas</div>
+      <div class="msg-text">Pesan "tidak ada wilayah tertinggal" mengaitkan agenda korporat dengan misi negara dan program prioritas presiden. Diperkuat Wamen Komdigi di 87 artikel.</div>
+    </div>
+    <div class="msg-card">
+      <div class="msg-top">
+        <span class="msg-cat" style="background:#d1fae5;color:#065f46;">Teknis</span>
+        <div class="stars"><span class="on">★★★★</span><span class="off">★</span></div>
+      </div>
+      <div class="msg-title">Ketahanan Jaringan · Dua Jalur Mandiri</div>
+      <div class="msg-text">Pesan "dua kaki konektivitas internasional" berhasil diterjemahkan secara awam. "Jayapura Kini Punya Dua Jalur Internet Global" menjadi headline Detik yang paling menarik.</div>
+    </div>
+    <div class="msg-card">
+      <div class="msg-top">
+        <span class="msg-cat" style="background:#ede9fe;color:#5b21b6;">Diplomasi</span>
+        <div class="stars"><span class="on">★★★★</span><span class="off">★</span></div>
+      </div>
+      <div class="msg-title">Diplomasi Digital RI–PNG</div>
+      <div class="msg-text">Dimensi bilateral muncul kuat di ~22% artikel namun belum maksimal. Kutipan CEO PNG DataCo Paul Komboi terbatas padahal memiliki nilai diplomatik dan internasional tinggi.</div>
+    </div>
+    <div class="msg-card">
+      <div class="msg-top">
+        <span class="msg-cat" style="background:#f1f5f9;color:#334155;">Geografis</span>
+        <div class="stars"><span class="on">★★★★</span><span class="off">★</span></div>
+      </div>
+      <div class="msg-title">Jayapura sebagai Gateway Asia-Pasifik</div>
+      <div class="msg-text">Reposisi Jayapura dari "pinggiran" menjadi "hub" mendapat respons kuat di media lokal Papua namun framing ini belum cukup kuat di media bisnis nasional.</div>
+    </div>
+    <div class="msg-card gap">
+      <div class="msg-top">
+        <span class="msg-cat" style="background:#fee2e2;color:#991b1b;">Ekonomi</span>
+        <div class="stars"><span class="on">★★</span><span class="off">★★★</span></div>
+      </div>
+      <div class="msg-title">Dampak Ekonomi Digital Kawasan ⚠</div>
+      <div class="msg-text">Dampak konkret — berapa Gbps ditambah, berapa pengguna terlayani, proyeksi ekonomi digital — hampir tidak muncul. Ini adalah <strong>gap komunikasi terbesar</strong> yang harus diisi di fase pasca-peresmian.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORECARD -->
+<div class="scorecard">
+  <div class="sc-hdr">
+    <div>
+      <div class="section-tag" style="color:rgba(255,255,255,.5);border-left-color:var(--red);">07 · Scorecard</div>
+      <div class="section-title" style="color:#fff;">Kinerja Komunikasi Keseluruhan</div>
+      <div class="section-sub">Evaluasi komprehensif · Peresmian Pukpuk Cable 8 Mei 2026</div>
+    </div>
+    <div class="sc-overall">
+      <div class="sc-lbl">Overall Score</div>
+      <div class="sc-val">82<span>/100</span></div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">★★★★☆ Sangat Baik</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div>
+      <div class="sc-item"><div class="sc-item-lbl">Volume Liputan</div><div class="sc-stars"><span class="on">★★★★★</span></div><div class="sc-note">101 artikel/15 hari — di atas rata-rata BUMN</div></div>
+      <div class="sc-item"><div class="sc-item-lbl">Sentimen</div><div class="sc-stars"><span class="on">★★★★★</span></div><div class="sc-note">100% positif judul & konten — sempurna</div></div>
+    </div>
+    <div>
+      <div class="sc-item"><div class="sc-item-lbl">Tier 1 Penetration</div><div class="sc-stars"><span class="on">★★★★</span><span class="off">★</span></div><div class="sc-note">13 outlet unik; belum ada Bisnis Indonesia, Bloomberg</div></div>
+      <div class="sc-item"><div class="sc-item-lbl">Message Consistency</div><div class="sc-stars"><span class="on">★★★★★</span></div><div class="sc-note">Framing "pertama Asia-Pasifik" sempurna di 100%</div></div>
+    </div>
+    <div>
+      <div class="sc-item"><div class="sc-item-lbl">Influencer Activation</div><div class="sc-stars"><span class="on">★★★★</span><span class="off">★</span></div><div class="sc-note">CEO Telin & CEO PNG DataCo under-utilized</div></div>
+      <div class="sc-item"><div class="sc-item-lbl">International Reach</div><div class="sc-stars"><span class="on">★★★</span><span class="off">★★</span></div><div class="sc-note">Hanya 1 artikel berbahasa Inggris (IndonesiaBusinessPost)</div></div>
+    </div>
+    <div>
+      <div class="sc-item"><div class="sc-item-lbl">Longevity</div><div class="sc-stars"><span class="on">★★★</span><span class="off">★★</span></div><div class="sc-note">Melandai alami setelah 15 hari pemantauan</div></div>
+      <div class="sc-item"><div class="sc-item-lbl">Impact Narrative</div><div class="sc-stars"><span class="on">★★</span><span class="off">★★★</span></div><div class="sc-note">Gap terbesar — prioritas utama pasca-peresmian</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="section muted">
+  <div class="section-hdr">
+    <div class="section-tag">06 · Rekomendasi Strategi Komunikasi</div>
+    <div class="section-title">Phase 2: Pasca-Peresmian · Konsolidasi & Ekspansi Narasi</div>
+    <div class="section-sub">Horizon Komunikasi 30 / 90 / 180 Hari</div>
+  </div>
+  <div class="rec-card">
+    <div class="rec-hor"><span class="rec-period" style="background:var(--red);">0–30 Hari</span><div class="rec-h" style="margin-top:6px;">Prioritas Segera</div></div>
+    <div><div class="rec-title">① Closing Statement & Impact Report — Mengunci Momentum</div><div class="rec-text">Terbitkan "Pukpuk Impact Report" dengan data konkret: penambahan kapasitas bandwidth (Gbps), proyeksi pengguna terlayani, dampak ekonomi kawasan. Ini mengisi gap narasi dampak dan membuka angle baru untuk media bisnis seperti Bisnis Indonesia, Kontan, dan Bloomberg.</div></div>
+  </div>
+  <div class="rec-card">
+    <div class="rec-hor"><span class="rec-period" style="background:var(--navy);">30–90 Hari</span><div class="rec-h" style="margin-top:6px;">Ekspansi Bilateral</div></div>
+    <div><div class="rec-title">② Aktivasi Narasi Internasional — Papua ke Panggung Dunia</div><div class="rec-text">Dorong liputan di media berbahasa Inggris: Channel News Asia, The Diplomat, Telegeography. CEO Telin Kharisma dan CEO PNG DataCo Paul Komboi harus menjadi wajah narasi internasional. Target: artikel feature di 1–2 media regional Asia-Pasifik.</div></div>
+  </div>
+  <div class="rec-card">
+    <div class="rec-hor"><span class="rec-period" style="background:var(--teal);">90–180 Hari</span><div class="rec-h" style="margin-top:6px;">Thought Leadership</div></div>
+    <div><div class="rec-title">③ TelkomGroup sebagai Arsitek Konektivitas Asia-Pasifik</div><div class="rec-text">Susun white paper "Archipelago Connectivity Model" — mendokumentasikan pendekatan 4 gateway (Batam, Kupang, Manado, Jayapura). Presentasikan di APRICOT, Pacific Telecommunications Council (PTC), atau ITU. Mengkonversi proyek tunggal menjadi strategic narrative jangka panjang.</div></div>
+  </div>
+  <div class="rec-card">
+    <div class="rec-hor"><span class="rec-period" style="background:var(--gray-700);">Ongoing</span><div class="rec-h" style="margin-top:6px;">Content & Risk</div></div>
+    <div><div class="rec-title">④ Aktivasi Video Digital & Risk Monitoring Narasi Keandalan</div><div class="rec-text">Produksi seri konten "Di Balik Layar Kabel Pukpuk" untuk TikTok & YouTube. Siapkan rapid response protocol SLA 2 jam untuk mengantisipasi narasi gangguan jaringan — memastikan sentimen positif 100% yang dicapai ini dapat dipertahankan.</div></div>
+  </div>
+</div>
+
+<!-- ADVISORY -->
+<div class="advisory">
+  <div class="adv-icon">"</div>
+  <div>
+    <div class="adv-title">Advisory Utama</div>
+    <div class="adv-text">Sentimen positif 100% adalah aset komunikasi yang sangat langka. Risiko terbesar saat ini bukan ancaman eksternal, melainkan <em>vakum narasi</em> — ketiadaan cerita baru akan membuat momentum menguap dalam 30–60 hari. Fase pasca-peresmian harus diisi dengan narasi dampak konkret dan ekspansi internasional sebelum siklus berita bergeser ke topik lain.</div>
+    <div class="adv-attr">— Analisis Tim · Berdasarkan data 101 artikel riil, 8–22 Mei 2026</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div><strong>Strategic Communication Analysis · Kabel Laut Pukpuk-1</strong><br>PT Telkom Indonesia (Persero) Tbk · TelkomGroup · Telin · 8–22 Mei 2026</div>
+  <div style="text-align:right;">Berdasarkan 101 artikel termonitor · Online-News_08-May-2026_22-May-2026<br>Disiapkan: 23 Mei 2026 · KONFIDENSIAL</div>
+</footer>
+
+</div><!-- end .page -->
+<script>
+const C = { red:'#ee2d24', navy:'#003057', teal:'#0f6e56', gold:'#B8860B', gray:'#94a3b8' };
+Chart.defaults.font = { family:'Inter, sans-serif', size:11 };
+Chart.defaults.color = '#64748b';
+
+// Daily — data from real Excel
+new Chart(document.getElementById('dailyChart'), {
+  type:'bar',
+  data:{
+    labels:['8 Mei','9 Mei','10 Mei','11 Mei','12 Mei','13 Mei','15 Mei','16 Mei','19 Mei','20 Mei','22 Mei'],
+    datasets:[{ label:'Artikel', data:[19,41,15,14,4,2,1,1,1,2,1],
+      backgroundColor:(ctx)=>ctx.dataIndex===1?C.red:C.navy, borderRadius:6, borderWidth:0 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.parsed.y+' artikel'}} },
+    scales:{ x:{grid:{display:false},ticks:{maxRotation:45}}, y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{stepSize:10},beginAtZero:true} }
+  }
+});
+
+// Tier — T1:20, T3:81
+new Chart(document.getElementById('tierChart'), {
+  type:'doughnut',
+  data:{ labels:['Tier 1 (nasional)','Tier 3 (regional)'], datasets:[{data:[20,81],backgroundColor:[C.red,C.navy],borderWidth:0}] },
+  options:{ responsive:true, maintainAspectRatio:false, cutout:'65%',
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.label+': '+c.parsed+' artikel'}} }
+  }
+});
+
+// Sentiment — 100% positif
+new Chart(document.getElementById('sentimentChart'), {
+  type:'doughnut',
+  data:{ labels:['Positif (101 artikel)'], datasets:[{data:[101],backgroundColor:[C.teal],borderWidth:0}] },
+  options:{ responsive:true, maintainAspectRatio:false, cutout:'68%',
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' 100% — '+c.parsed+' artikel'}} }
+  }
+});
+
+// Narratives
+new Chart(document.getElementById('narrativeChart'), {
+  type:'bar',
+  data:{
+    labels:['Milestone infrastruktur','Diplomasi bilateral','Pemerataan digital','Jayapura gateway','Gov. endorsement'],
+    datasets:[{ data:[38,22,20,12,8], backgroundColor:[C.red,C.navy,C.teal,C.gold,C.gray], borderRadius:6, borderWidth:0 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' ~'+c.parsed.x+'% artikel'}} },
+    scales:{ x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{stepSize:10},beginAtZero:true}, y:{grid:{display:false}} }
+  }
+});
+
+// Locations — real counts from Excel
+new Chart(document.getElementById('locationChart'), {
+  type:'bar',
+  data:{
+    labels:['Indonesia','Prov. Papua','Jayapura','Papua New Guinea','Asia','Indonesia Timur','Los Angeles','United States','Kota Manado','Maluku'],
+    datasets:[{ data:[99,98,96,94,91,89,71,70,67,65],
+      backgroundColor:[C.navy,C.navy,C.red,C.navy,C.gray,C.teal,C.gray,C.gray,C.gray,C.gray],
+      borderRadius:4, borderWidth:0 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.parsed.x+' penyebutan'}} },
+    scales:{ x:{grid:{color:'rgba(0,0,0,0.05)'},max:110,beginAtZero:true}, y:{grid:{display:false},ticks:{font:{size:11}}} }
+  }
+});
+</script>
+</body>
+</html>
