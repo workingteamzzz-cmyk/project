@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generator PDF Laporan PLN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --ink:#0e2a33; --surface:#eef3f4; --card:#ffffff; --line:#d7e1e4;
+    --primary:#15677B; --accent:#169FB7; --primary-soft:#e3eef1;
+    --muted:#5d7178; --positive:#0fa978; --danger:#e5484d; --warn:#c98a16;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 480px at 80% -8%, #dceef1 0%, transparent 60%),
+      var(--surface);
+    color:var(--ink); line-height:1.5; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:40px 22px 80px}
+  /* header */
+  .masthead{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px}
+  .mark{
+    flex:0 0 auto;width:46px;height:46px;border-radius:12px;
+    background:linear-gradient(150deg,var(--primary),var(--accent));
+    display:grid;place-items:center;color:#fff;box-shadow:0 6px 18px -8px var(--primary);
+  }
+  .mark svg{width:24px;height:24px}
+  h1{
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+    font-size:26px;letter-spacing:-.02em;margin:0;line-height:1.15;
+  }
+  .sub{color:var(--muted);font-size:14.5px;margin-top:3px}
+  .note{
+    margin:20px 0 26px;font-size:13px;color:var(--muted);
+    background:var(--primary-soft);border:1px solid #cfe0e4;
+    border-radius:10px;padding:11px 14px;display:flex;gap:9px;align-items:flex-start
+  }
+  .note b{color:var(--primary);font-weight:600}
+  .note svg{flex:0 0 auto;width:16px;height:16px;margin-top:1px;color:var(--accent)}
+  /* dropzone — the intake tray */
+  .tray{
+    position:relative;border:1.5px dashed #aebfc4;border-radius:var(--radius);
+    background:
+      linear-gradient(var(--card),var(--card)) padding-box,
+      repeating-linear-gradient(45deg,#e8eef0 0 10px,#eef3f4 10px 20px);
+    padding:38px 24px;text-align:center;cursor:pointer;overflow:hidden;
+    transition:border-color .18s, background .18s, transform .06s;
+  }
+  .tray:hover{border-color:var(--accent)}
+  .tray.drag{border-color:var(--primary);border-style:solid;background:var(--primary-soft)}
+  .tray:active{transform:scale(.998)}
+  .tray .ico{width:40px;height:40px;color:var(--primary);margin-bottom:10px}
+  .tray h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;margin:0 0 4px;font-weight:700}
+  .tray p{margin:0;color:var(--muted);font-size:13.5px}
+  .tray .pick{color:var(--primary);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+  .scanline{position:absolute;left:0;right:0;top:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;}
+  body.busy .scanline{opacity:1;animation:scan 1.4s linear infinite}
+  @keyframes scan{0%{transform:translateY(0)}100%{transform:translateY(420px)}}
+  /* controls */
+  .controls{display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+    margin:22px 2px 4px;font-size:13.5px}
+  .ctl{display:flex;align-items:center;gap:8px}
+  .ctl label{color:var(--muted);font-weight:500}
+  select,.seg{font-family:inherit;font-size:13.5px}
+  select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+  .seg button{border:0;background:transparent;padding:7px 12px;cursor:pointer;color:var(--muted);font-weight:600}
+  .seg button.on{background:var(--primary);color:#fff}
+  /* list */
+  .list{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:12px;background:var(--card);
+    border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+  .row .ft{flex:0 0 auto;width:30px;height:30px;border-radius:7px;background:var(--primary-soft);
+    color:var(--primary);display:grid;place-items:center}
+  .row .ft svg{width:16px;height:16px}
+  .meta{flex:1 1 auto;min-width:0}
+  .fname{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fsize{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .bar{height:4px;background:#eef3f4;border-radius:99px;margin-top:7px;overflow:hidden;display:none}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .25s}
+  .row.proc .bar{display:block}
+  .pill{flex:0 0 auto;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:99px;white-space:nowrap}
+  .pill.idle{background:#eef3f4;color:var(--muted)}
+  .pill.proc{background:#fff5e6;color:var(--warn)}
+  .pill.done{background:#e7f6ef;color:var(--positive)}
+  .pill.err{background:#fdeaea;color:var(--danger)}
+  .row .act{flex:0 0 auto;display:flex;gap:6px}
+  .iconbtn{border:1px solid var(--line);background:var(--card);border-radius:8px;width:32px;height:32px;
+    display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+  .iconbtn:hover{color:var(--primary);border-color:var(--accent)}
+  .iconbtn svg{width:15px;height:15px}
+  .iconbtn[disabled]{opacity:.35;cursor:not-allowed}
+  .errmsg{font-size:12px;color:var(--danger);margin-top:3px}
+  /* action bar */
+  .actions{position:sticky;bottom:14px;margin-top:22px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    background:rgba(255,255,255,.86);backdrop-filter:blur(8px);
+    border:1px solid var(--line);border-radius:13px;padding:12px 14px;box-shadow:0 10px 30px -18px #0e2a33}
+  .summary{font-size:13px;color:var(--muted);flex:1 1 auto}
+  .summary b{color:var(--ink)}
+  .btn{font-family:inherit;font-weight:600;font-size:14px;border-radius:10px;padding:10px 16px;cursor:pointer;border:1px solid transparent}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:#125a6b}
+  .btn-ghost{background:var(--card);border-color:var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--primary)}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .empty{display:none}
+  .hidden-stage{position:fixed;left:-99999px;top:0;width:1280px;pointer-events:none;opacity:0}
+  footer{margin-top:30px;text-align:center;color:var(--muted);font-size:12px}
+  footer code{font-family:'JetBrains Mono',monospace;font-size:11px;background:#e6edef;padding:1px 6px;border-radius:5px}
+  @media (max-width:560px){.wrap{padding:26px 14px 70px}h1{font-size:22px}.row .fsize{display:none}}
+  @media (prefers-reduced-motion:reduce){body.busy .scanline{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h6"/></svg>
+    </div>
+    <div>
+      <h1>Generator PDF Laporan</h1>
+      <div class="sub">Ubah file HTML laporan pantauan media menjadi PDF — penuh, tidak terpotong, link tetap bisa diklik.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Butuh koneksi internet. Tiap laporan dirender memakai Tailwind, Chart.js, dan Google Fonts <b>aslinya</b>, jadi hasil PDF sama persis dengan tampilan di browser. Semua proses berjalan di perangkat Anda — file tidak diunggah ke mana pun.</div>
+  </div>
+
+  <div class="tray" id="tray" role="button" tabindex="0" aria-label="Pilih atau jatuhkan file HTML">
+    <div class="scanline"></div>
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/></svg>
+    <h2>Jatuhkan file HTML di sini</h2>
+    <p>atau <span class="pick">pilih dari komputer</span> — bisa 50 file lebih sekaligus</p>
+    <input id="fileInput" type="file" accept=".html,.htm,text/html" multiple hidden />
+  </div>
+
+  <div class="controls">
+    <div class="ctl">
+      <label for="quality">Kualitas</label>
+      <select id="quality">
+        <option value="2" selected>Tinggi (2×)</option>
+        <option value="3">Sangat tinggi (3×)</option>
+        <option value="1.5">Sedang (1.5×) — lebih ringan</option>
+      </select>
+    </div>
+    <div class="ctl">
+      <label>Halaman</label>
+      <div class="seg" id="pageMode">
+        <button data-mode="continuous" class="on">Satu halaman panjang</button>
+        <button data-mode="a4">A4 (multi-halaman)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <div class="actions" id="actions" style="display:none">
+    <div class="summary" id="summary"></div>
+    <button class="btn btn-ghost" id="clearBtn">Bersihkan</button>
+    <button class="btn btn-ghost" id="zipBtn" disabled>Unduh semua (ZIP)</button>
+    <button class="btn btn-primary" id="runBtn" disabled>Buat PDF</button>
+  </div>
+
+  <footer>
+    Berjalan sepenuhnya di browser • output PDF satu halaman menerus secara default • beri tahu jika perlu format lain
+  </footer>
+</div>
+
+<div class="hidden-stage" id="stage" aria-hidden="true"></div>
+
+<script>
+(function(){
+  "use strict";
+  const { jsPDF } = window.jspdf;
+  const PT = 72/96;                       // CSS px -> PDF points
+  const RENDER_WIDTH = 1280;              // desktop layout width
+  const SETTLE_MS = 2000;                 // wait for Chart.js + fonts
+  const MAX_PT = 14000;                   // PDF single-page safety limit
+  const A4 = { w: 595.28, h: 841.89 };
+
+  const els = {
+    tray: document.getElementById('tray'),
+    input: document.getElementById('fileInput'),
+    list: document.getElementById('list'),
+    actions: document.getElementById('actions'),
+    summary: document.getElementById('summary'),
+    run: document.getElementById('runBtn'),
+    zip: document.getElementById('zipBtn'),
+    clear: document.getElementById('clearBtn'),
+    quality: document.getElementById('quality'),
+    pageMode: document.getElementById('pageMode'),
+    stage: document.getElementById('stage')
+  };
+
+  let items = [];          // {id,name,size,file,status,pct,blob,error}
+  let mode = 'continuous';
+  let running = false;
+  let uid = 0;
+
+  /* ---------- file intake ---------- */
+  function addFiles(fileList){
+    const arr = Array.from(fileList).filter(f => /\.html?$/i.test(f.name) || f.type === 'text/html');
+    if (!arr.length) return;
+    arr.forEach(f => items.push({ id:++uid, name:f.name, size:f.size, file:f, status:'idle', pct:0, blob:null, error:null }));
+    renderList();
+  }
+  els.input.addEventListener('change', e => { addFiles(e.target.files); els.input.value=''; });
+  els.tray.addEventListener('click', () => els.input.click());
+  els.tray.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();els.input.click();} });
+  ['dragenter','dragover'].forEach(ev => els.tray.addEventListener(ev, e=>{e.preventDefault();els.tray.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev => els.tray.addEventListener(ev, e=>{e.preventDefault();els.tray.classList.remove('drag');}));
+  els.tray.addEventListener('drop', e => { if(e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+
+  els.pageMode.addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    mode = b.dataset.mode;
+    [...els.pageMode.children].forEach(c => c.classList.toggle('on', c===b));
+  });
+
+  els.clear.addEventListener('click', () => { if(running) return; items=[]; renderList(); });
+  els.run.addEventListener('click', runAll);
+  els.zip.addEventListener('click', downloadZip);
+
+  /* ---------- rendering the list ---------- */
+  function fmtSize(b){ return b<1024 ? b+' B' : b<1048576 ? (b/1024).toFixed(0)+' KB' : (b/1048576).toFixed(1)+' MB'; }
+  const PILL = { idle:['idle','Menunggu'], proc:['proc','Memproses…'], done:['done','Selesai'], err:['err','Gagal'] };
+
+  function renderList(){
+    els.list.innerHTML = '';
+    items.forEach(it => {
+      const row = document.createElement('div');
+      row.className = 'row' + (it.status==='proc' ? ' proc' : '');
+      const [pc,pt] = PILL[it.status] || PILL.idle;
+      row.innerHTML = `
+        <div class="ft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></div>
+        <div class="meta">
+          <div class="fname">${escapeHtml(it.name)}</div>
+          <div class="fsize">${fmtSize(it.size)}${it.status==='done'&&it.blob?' · PDF '+fmtSize(it.blob.size):''}</div>
+          <div class="bar"><i style="width:${it.pct}%"></i></div>
+          ${it.error?`<div class="errmsg">${escapeHtml(it.error)}</div>`:''}
+        </div>
+        <span class="pill ${pc}">${pt}</span>
+        <div class="act">
+          <button class="iconbtn dl" ${it.blob?'':'disabled'} title="Unduh PDF">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M5 21h14"/></svg>
+          </button>
+          <button class="iconbtn rm" title="Hapus" ${running?'disabled':''}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>`;
+      row.querySelector('.dl').addEventListener('click', ()=> it.blob && saveBlob(it.blob, pdfName(it.name)));
+      row.querySelector('.rm').addEventListener('click', ()=>{ if(running) return; items = items.filter(x=>x!==it); renderList(); });
+      els.list.appendChild(row);
+    });
+    updateBars();
+    els.actions.style.display = items.length ? 'flex' : 'none';
+    refreshActions();
+  }
+  function updateBars(){
+    items.forEach((it,i)=>{ const row=els.list.children[i]; if(!row) return;
+      const bar=row.querySelector('.bar i'); if(bar) bar.style.width=it.pct+'%';
+      row.classList.toggle('proc', it.status==='proc');
+    });
+  }
+  function refreshActions(){
+    const pending = items.filter(i=>i.status==='idle'||i.status==='err').length;
+    const done = items.filter(i=>i.blob).length;
+    els.run.disabled = running || pending===0;
+    els.run.textContent = running ? 'Memproses…' : (pending? `Buat PDF (${pending})` : 'Selesai');
+    els.zip.disabled = running || done<1;
+    els.clear.disabled = running;
+    els.summary.innerHTML = `<b>${items.length}</b> file • <b>${done}</b> selesai` + (pending?` • ${pending} menunggu`:'');
+  }
+
+  /* ---------- the core: one file -> PDF ---------- */
+  function runAll(){
+    if(running) return;
+    running = true; document.body.classList.add('busy'); refreshActions();
+    const queue = items.filter(i=>i.status==='idle'||i.status==='err');
+    let idx = 0;
+    (function next(){
+      if(idx>=queue.length){ running=false; document.body.classList.remove('busy'); renderList(); return; }
+      const it = queue[idx++];
+      processOne(it).catch(err=>{ it.status='err'; it.error = (err&&err.message)||'Gagal memproses'; })
+        .then(()=>{ renderList(); setTimeout(next, 60); });
+    })();
+  }
+
+  function processOne(it){
+    it.status='proc'; it.pct=6; it.error=null; renderList();
+    return readText(it.file).then(html => new Promise((resolve,reject)=>{
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('scrolling','no');
+      iframe.style.width = RENDER_WIDTH+'px';
+      iframe.style.border = '0';
+      iframe.style.height = '1400px';
+      els.stage.appendChild(iframe);
+
+      let done=false;
+      const fail = (m)=>{ if(done)return; done=true; cleanup(); reject(new Error(m)); };
+      const cleanup = ()=>{ try{ els.stage.removeChild(iframe); }catch(e){} };
+
+      iframe.onload = () => {
+        const doc = iframe.contentDocument;
+        if(!doc){ return fail('Tidak bisa membaca konten file'); }
+        it.pct=22; updateBars();
+        const win = iframe.contentWindow;
+        const fontsReady = (doc.fonts && doc.fonts.ready) ? doc.fonts.ready.catch(()=>{}) : Promise.resolve();
+        // let Tailwind apply utilities + Chart.js draw + fonts load
+        Promise.resolve(fontsReady).then(()=> wait(SETTLE_MS)).then(()=>{
+          try{
+            it.pct=40; updateBars();
+            const fullH = Math.ceil(Math.max(
+              doc.documentElement.scrollHeight, doc.body.scrollHeight,
+              doc.documentElement.offsetHeight, doc.body.offsetHeight));
+            iframe.style.height = fullH+'px';
+            return wait(250).then(()=>({doc,win,fullH}));
+          }catch(e){ fail(e.message); }
+        }).then(ctx=>{
+          if(!ctx) return;
+          const {doc,fullH} = ctx;
+          const scale = parseFloat(els.quality.value)||2;
+          it.pct=55; updateBars();
+          return html2canvas(doc.body, {
+            scale, width:RENDER_WIDTH, height:fullH,
+            windowWidth:RENDER_WIDTH, windowHeight:fullH,
+            backgroundColor:'#ffffff', useCORS:true, logging:false, scrollX:0, scrollY:0
+          }).then(canvas=>{
+            it.pct=82; updateBars();
+            const links = collectLinks(doc);
+            const blob = buildPdf(canvas, links, scale);
+            it.blob = blob; it.status='done'; it.pct=100;
+            done=true; cleanup(); resolve();
+          });
+        }).catch(e=> fail((e&&e.message)||'Render gagal'));
+      };
+      iframe.onerror = ()=> fail('Gagal memuat file');
+      // same-origin srcdoc so html2canvas can read it
+      iframe.srcdoc = html;
+    }));
+  }
+
+  function collectLinks(doc){
+    const out=[];
+    doc.querySelectorAll('a[href]').forEach(a=>{
+      let href=''; try{ href=a.href; }catch(e){ return; }
+      if(!/^https?:/i.test(href)) return;
+      const rects=a.getClientRects();
+      for(let i=0;i<rects.length;i++){
+        const r=rects[i];
+        if(r.width<1||r.height<1) continue;
+        out.push({ url:href, x:r.left+(doc.defaultView.scrollX||0), y:r.top+(doc.defaultView.scrollY||0), w:r.width, h:r.height });
+      }
+    });
+    return out;
+  }
+
+  function buildPdf(canvas, links, scale){
+    const pxW = canvas.width/scale, pxH = canvas.height/scale;      // CSS px
+    const img = canvas.toDataURL('image/png');
+    if(mode==='a4') return pdfA4(img, pxW, pxH, links);
+    // continuous single page
+    let wpt = pxW*PT, hpt = pxH*PT;
+    if(hpt<=MAX_PT){
+      const pdf = new jsPDF({unit:'pt', format:[wpt,hpt], orientation: wpt>hpt?'landscape':'portrait', compress:true});
+      pdf.addImage(img,'PNG',0,0,wpt,hpt,undefined,'FAST');
+      links.forEach(L=> addLink(pdf, L.x*PT, L.y*PT, L.w*PT, L.h*PT, L.url));
+      return pdf.output('blob');
+    }
+    // too tall for one page -> slice into equal pages at full width
+    return pdfSlices(img, pxW, pxH, links, wpt, MAX_PT);
+  }
+
+  function pdfSlices(img, pxW, pxH, links, wpt, pageHpt){
+    const pdf = new jsPDF({unit:'pt', format:[wpt,pageHpt], compress:true});
+    const totalHpt = pxH*PT;
+    const pages = Math.ceil(totalHpt/pageHpt);
+    for(let p=0;p<pages;p++){
+      if(p>0) pdf.addPage([wpt,pageHpt]);
+      pdf.addImage(img,'PNG',0,-p*pageHpt,wpt,totalHpt,undefined,'FAST');
+    }
+    links.forEach(L=>{
+      const y=L.y*PT, p=Math.floor(y/pageHpt);
+      if(p>=0&&p<pages){ pdf.setPage(p+1); addLink(pdf, L.x*PT, y-p*pageHpt, L.w*PT, L.h*PT, L.url); }
+    });
+    return pdf.output('blob');
+  }
+
+  function pdfA4(img, pxW, pxH, links){
+    const pdf = new jsPDF({unit:'pt', format:'a4', compress:true});
+    const ratio = A4.w/(pxW*PT);            // scale so content width fits A4 width
+    const scaledTotalH = pxH*PT*ratio;
+    const pages = Math.max(1, Math.ceil(scaledTotalH/A4.h));
+    for(let p=0;p<pages;p++){
+      if(p>0) pdf.addPage('a4');
+      pdf.addImage(img,'PNG',0,-p*A4.h,A4.w,scaledTotalH,undefined,'FAST');
+    }
+    links.forEach(L=>{
+      const x=L.x*PT*ratio, y=L.y*PT*ratio, w=L.w*PT*ratio, h=L.h*PT*ratio;
+      const p=Math.floor(y/A4.h);
+      if(p>=0&&p<pages){ pdf.setPage(p+1); addLink(pdf, x, y-p*A4.h, w, h, L.url); }
+    });
+    return pdf.output('blob');
+  }
+
+  function addLink(pdf,x,y,w,h,url){ try{ pdf.link(x,y,w,h,{url}); }catch(e){} }
+
+  /* ---------- ZIP ---------- */
+  function downloadZip(){
+    const ready = items.filter(i=>i.blob);
+    if(!ready.length || typeof JSZip==='undefined') return;
+    const zip = new JSZip();
+    const seen={};
+    ready.forEach(it=>{
+      let n = pdfName(it.name);
+      if(seen[n]){ n = n.replace(/\.pdf$/i,'') + '-' + (++seen[n]) + '.pdf'; } else seen[n]=1;
+      zip.file(n, it.blob);
+    });
+    els.zip.disabled=true; els.zip.textContent='Menyiapkan ZIP…';
+    zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}}).then(blob=>{
+      saveBlob(blob, 'Laporan-PLN-PDF.zip');
+      els.zip.textContent='Unduh semua (ZIP)'; els.zip.disabled=false;
+    }).catch(()=>{ els.zip.textContent='Unduh semua (ZIP)'; els.zip.disabled=false; });
+  }
+
+  /* ---------- helpers ---------- */
+  function readText(file){ return file.text ? file.text() : new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(new Error('Gagal membaca file')); r.readAsText(file); }); }
+  function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  function pdfName(name){ return name.replace(/\.html?$/i,'') + '.pdf'; }
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function saveBlob(blob, filename){
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1500);
+  }
+
+  // library availability guard
+  window.addEventListener('load', ()=>{
+    if(typeof html2canvas==='undefined' || !window.jspdf){
+      const n=document.querySelector('.note');
+      n.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg><div style="color:var(--danger)">Komponen pemroses gagal dimuat. Periksa koneksi internet lalu muat ulang halaman ini.</div>';
+    }
+  });
+})();
+</script>
+</body>
+</html>
