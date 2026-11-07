@@ -1,0 +1,324 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Reimbursement Metrika</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one paper invoice, edited in place. Toolbar on top, sheet below; photos attach per row and become the attachment pages of the PDF. */
+:root{
+  --bg:#eef0f5; --surface:#ffffff; --line:#d3d8e6; --fg:#161b2e; --muted:#5a6280;
+  --brand:#364e9d; --brand-fg:#ffffff; --tint:#eef1fa; --rule:#c9d0e6; --field:#f6f8fd; --bad:#a3302a;
+  --font:Arial,Helvetica,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11141f; --surface:#191d2b; --line:#323a52; --fg:#e5e8f2; --muted:#9aa2bf; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11141f; --surface:#191d2b; --line:#323a52; --fg:#e5e8f2; --muted:#9aa2bf; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.bar .hint{color:var(--muted);font-size:13px}
+button{font:inherit;cursor:pointer;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px}
+button:hover{border-color:var(--brand)}
+button.primary{background:var(--brand);color:var(--brand-fg);border-color:var(--brand);font-weight:700}
+button:disabled{opacity:.55;cursor:progress}
+button:focus-visible,input:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+
+/* the sheet is always paper */
+.sheet{background:#fff;color:#161b2e;border:1px solid var(--line);padding:36px;font-size:13px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;padding-bottom:16px;border-bottom:3px solid var(--brand)}
+.head img{height:84px;max-width:100%}
+.ttl{text-align:right}
+.ttl h1{margin:0;font-size:28px;color:var(--brand);font-weight:700}
+.ttl .no{color:#555;margin-top:2px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:20px 0}
+.lbl{font-size:12px;color:var(--brand);font-weight:700;margin-bottom:4px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center}
+.kv>span{color:#555}
+.si{font:inherit;color:#161b2e;background:var(--field);border:0;border-bottom:1px dashed #9aa6cc;border-radius:0;padding:3px 4px;width:100%;min-width:0;color-scheme:light}
+.si:focus{outline:0;border-bottom:1.5px solid var(--brand);background:var(--tint)}
+.si::placeholder{color:#9aa0b0}
+.si.b{font-weight:700}
+.si.r{text-align:right;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th{background:var(--brand);color:#fff;font-weight:700;text-align:left;padding:8px 10px;font-size:12px}
+td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+tbody tr:nth-child(even) td{background:#f7f8fc}
+.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.no{width:36px;color:#555}
+td.dt{width:140px}
+td.pr{width:150px}
+td.ph{width:118px}
+td.x{width:34px;text-align:center}
+.phbtn{font-size:12px;padding:4px 8px;border-radius:4px;border:1px dashed #9aa6cc;background:#fff;color:var(--brand);white-space:nowrap}
+.thumbs{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.thumbs span{position:relative;width:30px;height:30px;border:1px solid var(--rule);overflow:hidden;display:block}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs button{position:absolute;inset:0;opacity:0;padding:0;border:0;background:rgb(163 48 42 / .8);color:#fff;font-size:14px;border-radius:0}
+.thumbs span:hover button,.thumbs button:focus-visible{opacity:1}
+.del{border:0;background:transparent;color:#999;padding:4px 6px;font-size:16px;line-height:1}
+.del:hover{color:var(--bad)}
+.addrow{margin-top:8px;font-size:13px;padding:6px 12px;border:1px dashed #9aa6cc;background:#fff;color:var(--brand)}
+tfoot td{border-bottom:0;font-weight:700;font-size:14px}
+tfoot .tot{background:var(--tint);border-top:2px solid var(--brand)}
+.terbilang{margin-top:8px;color:#444}
+.payto{margin-top:22px;border:1px solid var(--brand);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.payto .lbl{grid-column:1/-1}
+.payto>span{color:#555}
+.lamp h2{font-size:15px;color:var(--brand);margin:30px 0 10px}
+.lamp .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.lamp figure{margin:0;border:1px solid var(--rule);padding:6px}
+.lamp img{width:100%;display:block}
+.lamp figcaption{font-size:11px;color:#444;margin-top:4px}
+@media (max-width:560px){.sheet{padding:18px}.ttl{text-align:left}.head img{height:64px}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:4px;z-index:60;font-size:13px}
+input[type=file]{display:none}
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <span class="hint">Isi langsung di kertas di bawah. Foto bukti opsional, bisa lebih dari satu per baris.</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" id="b-reset">Kosongkan</button>
+      <button type="button" class="primary" id="b-pdf">Unduh PDF</button>
+    </div>
+  </div>
+
+  <article class="sheet" id="sheet">
+    <div class="head">
+      <img src="logo.png" alt="Metrika Cakrawala Data" id="logo">
+      <div class="ttl"><h1>REIMBURSEMENT</h1><div class="no" id="noLabel">No. –</div></div>
+    </div>
+
+    <div class="meta">
+      <div><div class="lbl">Dokumen</div><div class="kv">
+        <span>Nomor</span><input class="si" id="inv" placeholder="5">
+        <span>Tanggal</span><input class="si" type="date" id="invDate">
+      </div></div>
+      <div><div class="lbl">Ditujukan kepada</div><input class="si b" id="bill" value="Metrika Cakrawala Data"></div>
+      <div><div class="lbl">Diajukan oleh</div><input class="si b" id="nama" placeholder="Nama pemohon"></div>
+    </div>
+
+    <div class="tblwrap"><table>
+      <thead><tr><th class="n">No</th><th>Tanggal</th><th>Keterangan</th><th class="n">Jumlah (Rp)</th><th>Bukti</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+      <tfoot><tr><td colspan="3" class="tot" style="text-align:right">Total</td><td class="n tot" id="total">0</td><td class="tot" colspan="2"></td></tr></tfoot>
+    </table></div>
+    <button type="button" class="addrow" id="addRow">+ Tambah baris</button>
+    <div class="terbilang" id="terbilang"></div>
+
+    <div class="payto">
+      <div class="lbl">Mohon ditransfer ke</div>
+      <span>Nama penerima</span><input class="si b" id="rnama" placeholder="Sesuai buku tabungan">
+      <span>Bank</span><input class="si" id="bank" placeholder="Contoh: BCA">
+      <span>No. rekening</span><input class="si b" id="rek" inputmode="numeric" placeholder="0000000000">
+    </div>
+
+    <div class="lamp" id="lamp" hidden><h2>Lampiran Bukti</h2><div class="grid" id="lampGrid"></div></div>
+  </article>
+</div>
+<input type="file" id="file" accept="image/*" multiple>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,"0");
+const d0=new Date(), today=`${d0.getFullYear()}-${pad(d0.getMonth()+1)}-${pad(d0.getDate())}`;
+const dmy=d=>{if(!d) return "";const [y,m,dd]=d.split("-");return `${dd}/${m}/${y}`};
+const num=n=>Math.round(n||0).toLocaleString("id-ID");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+function terbilang(n){
+  n=Math.floor(n);
+  const s=["","satu","dua","tiga","empat","lima","enam","tujuh","delapan","sembilan","sepuluh","sebelas"];
+  const f=x=>{
+    if(x<12) return s[x];
+    if(x<20) return f(x-10)+" belas";
+    if(x<100) return f(Math.floor(x/10))+" puluh "+f(x%10);
+    if(x<200) return "seratus "+f(x-100);
+    if(x<1000) return f(Math.floor(x/100))+" ratus "+f(x%100);
+    if(x<2000) return "seribu "+f(x-1000);
+    if(x<1e6) return f(Math.floor(x/1000))+" ribu "+f(x%1000);
+    if(x<1e9) return f(Math.floor(x/1e6))+" juta "+f(x%1e6);
+    if(x<1e12) return f(Math.floor(x/1e9))+" miliar "+f(x%1e9);
+    return f(Math.floor(x/1e12))+" triliun "+f(x%1e12);
+  };
+  if(!n) return "";
+  const t=f(n).replace(/\s+/g," ").trim();
+  return t.charAt(0).toUpperCase()+t.slice(1)+" rupiah";
+}
+
+/* state lives only in this page; nothing is saved */
+let rows=[], uid=0, pickFor=null;
+const newRow=()=>({id:++uid,date:today,desc:"",price:0,photos:[]});
+
+function renderRows(){
+  $("#rows").innerHTML=rows.map((r,i)=>`<tr data-id="${r.id}">
+    <td class="n no">${i+1}</td>
+    <td class="dt"><input class="si" type="date" data-f="date" value="${esc(r.date)}" aria-label="Tanggal baris ${i+1}"></td>
+    <td><input class="si" data-f="desc" value="${esc(r.desc)}" placeholder="Contoh: Zoom Okt" aria-label="Keterangan baris ${i+1}"></td>
+    <td class="pr"><input class="si r" data-f="price" inputmode="numeric" value="${r.price?num(r.price):""}" placeholder="0" aria-label="Harga baris ${i+1}"></td>
+    <td class="ph"><button type="button" class="phbtn" data-add="${r.id}">+ Foto</button>
+      ${r.photos.length?`<div class="thumbs">${r.photos.map((p,j)=>`<span><img src="${p.url}" alt=""><button type="button" data-rm="${r.id}:${j}" aria-label="Hapus foto">×</button></span>`).join("")}</div>`:""}</td>
+    <td class="x">${rows.length>1?`<button type="button" class="del" data-del="${r.id}" aria-label="Hapus baris">×</button>`:""}</td>
+  </tr>`).join("");
+  update();
+}
+function update(){
+  const t=rows.reduce((s,r)=>s+(r.price||0),0);
+  $("#total").textContent=num(t);
+  const tb=terbilang(t);$("#terbilang").textContent=tb?"Terbilang: "+tb:"";
+  $("#noLabel").textContent="No. "+($("#inv").value.trim()||"–");
+  const figs=[];
+  rows.forEach((r,i)=>r.photos.forEach((p,j)=>figs.push(`<figure><img src="${p.url}" alt=""><figcaption>${esc(caption(r,i,j))}</figcaption></figure>`)));
+  $("#lamp").hidden=!figs.length;$("#lampGrid").innerHTML=figs.join("");
+}
+const caption=(r,i,j)=>`No ${i+1}${r.photos.length>1?` (${j+1}/${r.photos.length})`:""} · ${dmy(r.date)} · Rp${num(r.price)}${r.desc?" · "+r.desc:""}`;
+
+$("#rows").addEventListener("input",e=>{
+  const el=e.target,f=el.dataset.f;if(!f) return;
+  const r=rows.find(x=>x.id==el.closest("tr").dataset.id);
+  if(f==="price"){const d=el.value.replace(/\D/g,"");r.price=+d||0;el.value=d?num(r.price):""}
+  else r[f]=el.value;
+  update();
+});
+$("#rows").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b) return;
+  if(b.dataset.add){pickFor=+b.dataset.add;$("#file").click()}
+  else if(b.dataset.del){rows=rows.filter(r=>r.id!=b.dataset.del);renderRows()}
+  else if(b.dataset.rm){const [id,j]=b.dataset.rm.split(":");rows.find(r=>r.id==id).photos.splice(+j,1);renderRows()}
+});
+$("#addRow").onclick=()=>{const last=rows[rows.length-1];const r=newRow();if(last) r.date=last.date;rows.push(r);renderRows();
+  const ins=$("#rows").lastElementChild.querySelector('[data-f="desc"]');ins&&ins.focus()};
+$("#inv").addEventListener("input",update);
+
+/* photos: shrunk to JPEG in the browser, kept only in this page */
+function loadPhoto(file){
+  return new Promise(res=>{
+    const img=new Image(),u=URL.createObjectURL(file);
+    img.onload=()=>{
+      const sc=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
+      const c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);
+      const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(u);res({url:c.toDataURL("image/jpeg",.85),w:c.width,h:c.height});
+    };
+    img.onerror=()=>{URL.revokeObjectURL(u);res(null)};
+    img.src=u;
+  });
+}
+$("#file").onchange=async e=>{
+  const r=rows.find(x=>x.id===pickFor);const files=[...e.target.files];e.target.value="";if(!r) return;
+  let bad=0;
+  for(const f of files){const p=await loadPhoto(f);p?r.photos.push(p):bad++}
+  if(bad) toast(`${bad} file tidak bisa dibaca. Pakai JPG atau PNG.`);
+  renderRows();
+};
+
+/* reset */
+let armed=false;
+$("#b-reset").onclick=()=>{
+  const b=$("#b-reset");
+  if(!armed){armed=true;b.textContent="Yakin kosongkan?";setTimeout(()=>{armed=false;b.textContent="Kosongkan"},3000);return}
+  armed=false;b.textContent="Kosongkan";
+  ["inv","nama","rnama","bank","rek"].forEach(id=>$("#"+id).value="");
+  $("#bill").value="Metrika Cakrawala Data";$("#invDate").value=today;
+  rows=[newRow()];renderRows();
+};
+
+/* PDF */
+let logo=null;
+(async()=>{try{const r=await fetch("logo.png");const b=await r.blob();logo=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)})}catch(e){}})();
+let downloads=null;
+(async()=>{if(window.claude&&claude.use) downloads=await claude.use("downloads")})();
+
+function buildPdf(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const W=210,M=15,BR=[54,78,157],INK=[22,27,46],GR=[85,85,85];
+  const v=id=>$("#"+id).value.trim();
+  const inv=v("inv");
+  // header
+  if(logo) doc.addImage(logo,"PNG",M,12,30.3,22);
+  doc.setFont("helvetica","bold");doc.setFontSize(22);doc.setTextColor(...BR);
+  doc.text("REIMBURSEMENT",W-M,22,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(...GR);
+  doc.text("No. "+(inv||"-"),W-M,28,{align:"right"});
+  doc.setDrawColor(...BR);doc.setLineWidth(1);doc.line(M,38,W-M,38);
+  // meta
+  const colW=(W-2*M)/3;let y=46;
+  const block=(x,label,lines)=>{
+    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...BR);doc.text(label,x,y);
+    let yy=y+5.5;lines.forEach(([k,val,bold])=>{
+      doc.setFontSize(10);
+      if(k){doc.setFont("helvetica","normal");doc.setTextColor(...GR);doc.text(k,x,yy);}
+      doc.setFont("helvetica",bold?"bold":"normal");doc.setTextColor(...INK);
+      doc.text(doc.splitTextToSize(val||"-",k?colW-26:colW-4),k?x+24:x,yy);yy+=5.5});
+  };
+  block(M,"Dokumen",[["Nomor",inv],["Tanggal",dmy($("#invDate").value||today)]]);
+  block(M+colW,"Ditujukan kepada",[[null,v("bill"),true]]);
+  block(M+2*colW,"Diajukan oleh",[[null,v("nama"),true]]);
+  // table
+  const body=rows.map((r,i)=>[String(i+1),dmy(r.date),r.desc||"-",num(r.price)]);
+  const total=rows.reduce((s,r)=>s+(r.price||0),0);
+  doc.autoTable({
+    startY:y+18,margin:{left:M,right:M},
+    head:[["No","Tanggal","Keterangan","Jumlah (Rp)"]],body,
+    foot:[[{content:"Total",colSpan:3,styles:{halign:"right"}},{content:num(total),styles:{halign:"right"}}]],
+    styles:{font:"helvetica",fontSize:10,textColor:INK,cellPadding:2.4,lineColor:[201,208,230],lineWidth:{bottom:.2}},
+    headStyles:{fillColor:BR,textColor:255,fontStyle:"bold"},
+    footStyles:{fillColor:[238,241,250],textColor:INK,fontStyle:"bold",fontSize:11},
+    alternateRowStyles:{fillColor:[247,248,252]},
+    columnStyles:{0:{cellWidth:12,halign:"right"},1:{cellWidth:28},3:{cellWidth:38,halign:"right"}},
+    showFoot:"lastPage"
+  });
+  y=doc.lastAutoTable.finalY+7;
+  const tb=terbilang(total);
+  if(tb){doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(68,68,68);const tl=doc.splitTextToSize("Terbilang: "+tb,W-2*M);doc.text(tl,M,y);y+=tl.length*5+4}
+  // pay to
+  if(y+34>282){doc.addPage();y=20}
+  doc.setDrawColor(...BR);doc.setLineWidth(.3);doc.rect(M,y,W-2*M,30);
+  doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...BR);doc.text("Mohon ditransfer ke",M+5,y+7);
+  [["Nama penerima",v("rnama"),true],["Bank",v("bank"),false],["No. rekening",v("rek"),true]].forEach(([k,val,b],i)=>{
+    const yy=y+13.5+i*5.5;doc.setFontSize(10);
+    doc.setFont("helvetica","normal");doc.setTextColor(...GR);doc.text(k,M+5,yy);
+    doc.setFont("helvetica",b?"bold":"normal");doc.setTextColor(...INK);doc.text(val||"-",M+38,yy);
+  });
+  // attachments: 2 x 2 per page
+  const pics=[];rows.forEach((r,i)=>r.photos.forEach((p,j)=>pics.push({p,cap:caption(r,i,j)})));
+  if(pics.length){
+    const gw=(W-2*M-8)/2, gh=118;
+    pics.forEach((it,k)=>{
+      const slot=k%4;
+      if(slot===0){doc.addPage();doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(...BR);doc.text("Lampiran Bukti"+(inv?" - No. "+inv:""),M,18)}
+      const x=M+(slot%2)*(gw+8), yy=24+Math.floor(slot/2)*(gh+12);
+      const sc=Math.min(gw/it.p.w,(gh-8)/it.p.h), iw=it.p.w*sc, ih=it.p.h*sc;
+      doc.addImage(it.p.url,"JPEG",x+(gw-iw)/2,yy,iw,ih);
+      doc.setFont("helvetica","normal");doc.setFontSize(8.5);doc.setTextColor(68,68,68);
+      doc.text(doc.splitTextToSize(it.cap,gw),x,yy+gh-3);
+    });
+  }
+  return doc;
+}
+
+$("#b-pdf").onclick=async()=>{
+  if(!window.jspdf){toast("Pembuat PDF belum termuat. Muat ulang halaman.");return}
+  if(!rows.some(r=>r.price)){toast("Isi minimal satu baris dengan nominal.");return}
+  if(!downloads){toast("Unduhan tidak tersedia di tampilan ini. Buka halaman di claude.ai.");return}
+  const b=$("#b-pdf");b.disabled=true;b.textContent="Membuat PDF…";
+  try{
+    const doc=buildPdf();
+    const inv=$("#inv").value.trim().replace(/[^\w-]/g,"");
+    const nm=$("#nama").value.trim().replace(/[^\w]+/g,"-").replace(/^-|-$/g,"");
+    await downloads.save({filename:`Reimbursement${inv?"-"+inv:""}${nm?"-"+nm:""}.pdf`,data:doc.output("arraybuffer")});
+  }catch(e){if(!e||e.code!=="declined") toast("Gagal membuat PDF. Coba lagi.")}
+  finally{b.disabled=false;b.textContent="Unduh PDF"}
+};
+
+$("#invDate").value=today;
+rows=[newRow()];renderRows();
+})();
+</script>
+
+</body></html>
